@@ -58,6 +58,53 @@ func (c *Container) Stop() {
 	}
 }
 
+func Create(namePrefix string, args ...string) (c *Container) {
+
+	// Build unique container name and struct.
+	containerIdx++
+	c = &Container{Name: fmt.Sprintf("%v-%d-%d-felixfv", namePrefix, os.Getpid(), containerIdx)}
+
+	// Prep command to create the container.
+	log.WithField("container", c).Info("About to create container")
+	runArgs := append([]string{"create", "--rm", "--name", c.Name, "--hostname", c.Name}, args...)
+	utils.Run("docker", runArgs...)
+
+	// Fill in rest of container struct.
+	c.Hostname = c.GetHostname()
+	c.binaries = set.New()
+	log.WithField("container", c).Info("Container created")
+	return
+}
+
+func (c *Container) Start() {
+
+	// Prep command to start the container.
+	log.WithField("container", c).Info("About to start container")
+	c.runCmd = utils.Command("docker", "start", "--attach", c.Name)
+
+	// Get the command's output pipes, so we can merge those into the test's own logging.
+	stdout, err := c.runCmd.StdoutPipe()
+	Expect(err).NotTo(HaveOccurred())
+	stderr, err := c.runCmd.StderrPipe()
+	Expect(err).NotTo(HaveOccurred())
+
+	// Start the container running.
+	err = c.runCmd.Start()
+	Expect(err).NotTo(HaveOccurred())
+
+	// Merge container's output into our own logging.
+	go copyOutputToLog(c.Name, "stdout", stdout)
+	go copyOutputToLog(c.Name, "stderr", stderr)
+
+	// Note: it might take a long time for the container to start running, e.g. if the image
+	// needs to be downloaded.
+	c.WaitUntilRunning()
+
+	c.IP = c.GetIP()
+	log.WithField("container", c).Info("Container now running")
+	return
+}
+
 func Run(namePrefix string, args ...string) (c *Container) {
 
 	// Build unique container name and struct.
