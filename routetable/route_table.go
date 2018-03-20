@@ -475,6 +475,14 @@ func (r *RouteTable) syncRoutesForLink(ifaceName string) error {
 			if err := nl.RouteAdd(&route); err != nil {
 				logCxt.WithError(err).Warn("Failed to add route")
 				updatesFailed = true
+				all, err := nl.DebugRoutes(r.netlinkFamily)
+				if err != nil {
+					logCxt.WithError(err).Warn("Couldn't debug routes")
+				} else {
+					for _, rt := range all {
+						logCxt.WithField("rt", rt).Info("Debug route")
+					}
+				}
 			}
 		}
 		if r.ipVersion == 4 && target.DestMAC != nil {

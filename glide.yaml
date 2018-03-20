@@ -47,6 +47,8 @@ import:
 - package: github.com/gogo/protobuf
   version: ^0.5.0
 - package: github.com/vishvananda/netlink
+  repo: https://github.com/neiljerram/netlink
+  version: route-list-debug
 - package: github.com/onsi/ginkgo
   version: ^1.4.0
 - package: github.com/onsi/gomega
@@ -79,4 +81,3 @@ import:
   version: f98634e408857669d61064b283c4cde240622865
   subpackages:
   - xfs
-

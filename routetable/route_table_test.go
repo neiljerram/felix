@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Tigera, Inc. All rights reserved.
+// Copyright (c) 2017, 2018 Tigera, Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -599,6 +599,10 @@ func (d *mockDataplane) RouteList(link netlink.Link, family int) ([]netlink.Rout
 		}
 	}
 	return routes, nil
+}
+
+func (d *mockDataplane) DebugRoutes(family int) ([]netlink.Route, error) {
+	return nil, nil
 }
 
 func (d *mockDataplane) addMockRoute(route *netlink.Route) {

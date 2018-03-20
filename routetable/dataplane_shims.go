@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Tigera, Inc. All rights reserved.
+// Copyright (c) 2017, 2018 Tigera, Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ type HandleIface interface {
 	RouteAdd(route *netlink.Route) error
 	RouteDel(route *netlink.Route) error
 	Delete()
+	DebugRoutes(family int) ([]netlink.Route, error)
 }
 
 type realDataplane struct {
