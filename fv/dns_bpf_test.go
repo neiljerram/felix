@@ -18,6 +18,7 @@ package fv_test
 
 import (
 	"strconv"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -36,7 +37,7 @@ var _ = Context("DNS BPF prototype", func() {
 		etcd   *containers.Container
 		felix  *infrastructure.Felix
 		client client.Interface
-		w      [3]*workload.Workload
+		w      [1]*workload.Workload
 	)
 
 	BeforeEach(func() {
@@ -55,7 +56,7 @@ var _ = Context("DNS BPF prototype", func() {
 		_, err := client.Profiles().Create(utils.Ctx, defaultProfile, utils.NoOptions)
 		Expect(err).NotTo(HaveOccurred())
 
-		// Create three workloads, using that profile.
+		// Create a workload, using that profile.
 		for ii := range w {
 			iiStr := strconv.Itoa(ii)
 			w[ii] = workload.Run(felix, "w"+iiStr, "default", "10.65.0.1"+iiStr, "8055", "tcp")
@@ -82,9 +83,6 @@ var _ = Context("DNS BPF prototype", func() {
 	})
 
 	It("full connectivity to and from workload 0", func() {
-		Expect(w[1]).To(HaveConnectivityTo(w[0]))
-		Expect(w[2]).To(HaveConnectivityTo(w[0]))
-		Expect(w[0]).To(HaveConnectivityTo(w[1]))
-		Expect(w[0]).To(HaveConnectivityTo(w[2]))
+		time.Sleep(1 * time.Second)
 	})
 })
