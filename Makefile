@@ -556,6 +556,10 @@ fv/fv.test: vendor/.up-to-date $(SRC_FILES)
 	# outside a container and allow them to interact with docker.
 	$(DOCKER_RUN) $(LOCAL_BUILD_MOUNTS) $(CALICO_BUILD) go test ./$(shell dirname $@) -c --tags fvtests -o $@
 
+FV_BPFS=bpf/minimal.o
+%.o: %.c
+	clang -O2 -emit-llvm -c $^ -o - | llc -march=bpf -filetype=obj -o $@
+
 .PHONY: fv
 # runs all of the fv tests
 # to run it in parallel, decide how many parallel engines you will run, and in each one call:
@@ -570,7 +574,7 @@ fv/fv.test: vendor/.up-to-date $(SRC_FILES)
 #         ...
 #         $(MAKE) fv FV_BATCHES_TO_RUN="10" FV_NUM_BATCHES=10    # the tenth 1/10
 #         etc.
-fv fv/latency.log: $(BUILD_IMAGE) bin/iptables-locker bin/test-workload bin/test-connection fv/fv.test
+fv fv/latency.log: $(BUILD_IMAGE) bin/iptables-locker bin/test-workload bin/test-connection fv/fv.test $(FV_BPFS)
 	cd fv && \
 	  FV_FELIXIMAGE=$(FV_FELIXIMAGE) \
 	  FV_ETCDIMAGE=$(FV_ETCDIMAGE) \
